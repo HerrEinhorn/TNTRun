@@ -87,14 +87,14 @@ class InGame(
 
     private fun checkWin() {
         val winner = players.singleOrNull { it.gameMode != GameMode.SPECTATOR && it.isOnline } ?: return
-        stop()
-        win(winner)
         winner.sendTitle("${GREEN}You won${WHITE}!")
         players.forEach {
             it.sendPlayTime()
             if (it == winner) return@forEach
             it.sendTitle("${GREEN}${winner.displayName} won")
         }
+        stop()
+        win(winner)
     }
 
     override fun stop() {

@@ -10,6 +10,7 @@ import net.darkdevelopers.darkbedrock.darkness.spigot.functions.events.listen
 import net.darkdevelopers.darkbedrock.darkness.spigot.functions.sendLobbyScoreBoard
 import net.darkdevelopers.darkbedrock.darkness.spigot.manager.game.EventsTemplate
 import net.darkdevelopers.darkbedrock.darkness.spigot.manager.game.LobbyEventsTemplate
+import net.darkdevelopers.darkbedrock.darkness.spigot.utils.Items
 import org.bukkit.ChatColor.AQUA
 import org.bukkit.ChatColor.BOLD
 import org.bukkit.GameMode
@@ -34,11 +35,13 @@ class Lobby(
             val player = it.player
             player.gameMode = GameMode.SURVIVAL
             player.sendLobbyScoreBoard("$AQUA${BOLD}$gameWorldName", countdown.gameName)
+            player.inventory.setItem(9, Items.LEAVE.itemStack)
         }.add()
         countdown.idle()
     }
 
     override fun stop() {
+        countdown.players.forEach { it.inventory.clear() }
         LobbyEventsTemplate.reset()
         cancelEntityExplode = false
         reset()
