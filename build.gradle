@@ -1,9 +1,11 @@
 /*
- * © Copyright - Astride UG (haftungsbeschränkt) - 2020.
+ * © Copyright - Astride UG (haftungsbeschränkt) & Leon Krogul (Herr_Einhorn) - 2020.
  */
 
-import java.text.SimpleDateFormat
+
 import org.apache.tools.ant.filters.ReplaceTokens
+
+import java.text.SimpleDateFormat
 
 buildscript {
     ext {
@@ -48,9 +50,11 @@ test {
 
 dependencies {
     jarLibs 'com.beust:klaxon:5.0.1'
-    jarLibs "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    jarLibs "org.jetbrains.kotlin:kotlin-reflect"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compile "org.jetbrains.kotlin:kotlin-reflect"
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3'
 
+    compileOnly(fileTree(libsDirName))
     compile("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
 
     testImplementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
