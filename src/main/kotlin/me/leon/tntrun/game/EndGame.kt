@@ -7,7 +7,7 @@ package me.leon.tntrun.game
 import net.darkdevelopers.darkbedrock.darkness.spigot.countdowns.EndGameCountdown
 import net.darkdevelopers.darkbedrock.darkness.spigot.functions.schedule
 import net.darkdevelopers.darkbedrock.darkness.spigot.manager.game.LobbyEventsTemplate
-import org.bukkit.Bukkit
+import org.bukkit.GameMode
 import org.bukkit.Location
 import org.bukkit.plugin.Plugin
 
@@ -16,11 +16,14 @@ class EndGame(
     private val spawn: Location
 ) : StartStop {
 
-    private val countdown: EndGameCountdown = EndGameCountdown()
+    private val countdown: EndGameCountdown = EndGameCountdown(seconds = 3)
 
     override fun start() {
         plugin.schedule {
-            countdown.players.forEach { it.teleport(spawn) }
+            countdown.players.forEach {
+                it.teleport(spawn)
+                it.gameMode = GameMode.SURVIVAL
+            }
         }
         LobbyEventsTemplate.setup(plugin, spawn)
         countdown.start()
@@ -29,7 +32,7 @@ class EndGame(
     override fun stop() {
         LobbyEventsTemplate.reset()
         countdown.stop()
-        Bukkit.shutdown()
+//        Bukkit.shutdown()
     }
 
 }

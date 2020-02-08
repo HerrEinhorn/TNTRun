@@ -20,7 +20,9 @@ import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
+import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
+import org.bukkit.entity.TNTPrimed
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.player.PlayerRespawnEvent
@@ -42,19 +44,29 @@ class InGame(
         isRunning = true
         GlobalScope.launch {
             val blocks = mutableSetOf<Block>()
+            val tnts = mutableSetOf<Entity>()
             while (isRunning) {
-                val time = TimeUnit.SECONDS.toMillis(1)
+                val time = 250L
+                delay(time)
                 GlobalScope.launch {
-                    delay(time)
+                    delay(time * 2)
                     plugin.schedule {
-                        blocks.forEach { it.setType(Material.AIR, false) }
+                        tnts.forEach { it.remove() }
+                        tnts.clear()
+                        blocks.forEach {
+                            it.setType(Material.AIR, false)
+                            tnts += it.world.spawn(it.location.add(0.5, -0.5, 0.5), TNTPrimed::class.java)
+                        }
+                        blocks.clear()
                     }
                 }
                 players.forEach {
-                    val block = it.location.block.getRelative(BlockFace.DOWN)
+                    if (it.gameMode != GameMode.SURVIVAL) return@forEach
+                    val block = it.location.block.getRelative(BlockFace.DOWN).run {
+                        if (type == Material.AIR) getRelative(BlockFace.DOWN) else this
+                    }
                     blocks += block
                 }
-                delay(time)
             }
             isRunning = false
         }
@@ -77,17 +89,18 @@ class InGame(
         val winner = players.singleOrNull { it.gameMode != GameMode.SPECTATOR && it.isOnline } ?: return
         stop()
         win(winner)
-        winner.sendTitle("${AQUA}You$BLUE won!")
+        winner.sendTitle("${GREEN}You won${WHITE}!")
         players.forEach {
             it.sendPlayTime()
             if (it == winner) return@forEach
-            it.sendTitle("${AQUA}${winner.displayName}$BLUE won")
+            it.sendTitle("${GREEN}${winner.displayName} won")
         }
     }
 
     override fun stop() {
         isRunning = false
         reset()
+        stopWatch.reset()
     }
 
     private fun Player.dead() {
@@ -96,7 +109,7 @@ class InGame(
         sendPlayTime()
     }
 
-    fun Player.sendPlayTime() {
+    private fun Player.sendPlayTime() {
         sendSubTitle("${GRAY}after $DARK_GRAY${TimeUnit.MILLISECONDS.toSeconds(stopWatch.time)}${GRAY}s")
         sendTimings(20, 140, 40)
     }

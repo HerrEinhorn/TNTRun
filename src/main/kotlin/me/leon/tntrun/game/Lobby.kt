@@ -25,7 +25,7 @@ class Lobby(
     private val gameWorldName: String
 ) : EventsTemplate(), StartStop {
 
-    private var countdown: LobbyCountdown = LobbyCountdown(gameName = gameName, minPlayers = minPlayers)
+    private var countdown: LobbyCountdown = LobbyCountdown(gameName = gameName, minPlayers = minPlayers, seconds = 25)
 
     override fun start() {
         LobbyEventsTemplate.setup(plugin, spawn)

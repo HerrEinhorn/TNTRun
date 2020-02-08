@@ -33,12 +33,12 @@ class GameStateManager(
         lobby.start()
         listen<LobbyCountdownCallEvent>(plugin) { event ->
             val countdown = event.lobbyCountdown
-            if (countdown.seconds == 10) plugin.schedule {
+            if (countdown.seconds == 20) plugin.schedule {
                 gameWorld.spawn.world = (gameWorld.spawn.world?.name ?: "GameWorld").loadBukkitWorld().apply {
-                    for (x in -50..50) {
-                        for (z in -50..50) {
-                            getBlockAt(x, 100, z).setType(Material.TNT, false)
-                        }
+                    plugin.schedule {
+                        for (x in -20..20)
+                            for (z in -20..20)
+                                getBlockAt(x, 100, z).setType(Material.TNT, false)
                     }
                 }
             }
@@ -58,6 +58,7 @@ class GameStateManager(
             val countdown = event.endGameCountdown
             if (countdown.players.any { it.isOnline } && countdown.seconds > 0) return@listen
             endGame.stop()
+            lobby.start()
         }.add()
     }
 
