@@ -1,3 +1,6 @@
 name: TNTRun
-version:  @version@
+version: @version@
 main: me.leon.tntrun.TNTRun
+
+depend:
+  - DarkFrame
