@@ -27,7 +27,7 @@ class Lobby(
     private val gameWorldName: String
 ) : EventsTemplate(), StartStop {
 
-    private var countdown: LobbyCountdown = LobbyCountdown(gameName = gameName, minPlayers = minPlayers, seconds = 25)
+    var countdown: LobbyCountdown = LobbyCountdown(gameName = gameName, minPlayers = minPlayers, seconds = 25)
 
     override fun start() {
         LobbyEventsTemplate.setup(plugin, spawn)
@@ -37,6 +37,7 @@ class Lobby(
             player.gameMode = GameMode.SURVIVAL
             player.sendLobbyScoreBoard("$AQUA${BOLD}$gameWorldName", countdown.gameName)
             player.inventory.setItem(8, Items.LEAVE.itemStack)
+            countdown.idle()
         }.add()
         listen<PlayerDisconnectEvent>(plugin) {
             if (countdown.players.size - 1 > countdown.minPlayers) return@listen

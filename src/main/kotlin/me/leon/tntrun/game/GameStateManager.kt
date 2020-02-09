@@ -13,8 +13,7 @@ import net.darkdevelopers.darkbedrock.darkness.spigot.functions.loadBukkitWorld
 import net.darkdevelopers.darkbedrock.darkness.spigot.functions.schedule
 import net.darkdevelopers.darkbedrock.darkness.spigot.manager.game.EventsTemplate
 import org.bukkit.Bukkit
-import org.bukkit.ChatColor.BOLD
-import org.bukkit.ChatColor.DARK_RED
+import org.bukkit.ChatColor.*
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.plugin.Plugin
@@ -27,10 +26,10 @@ class GameStateManager(
 
     private val config = Config(plugin.dataFolder)
     private val gameWorld: GameWorld = config.gameWorlds.random()
-    private val lobby: Lobby = Lobby(plugin, config.lobbySpawn, config.gameName, config.minPlayers, gameWorld.name)
+    val lobby: Lobby = Lobby(plugin, config.lobbySpawn, config.gameName, config.minPlayers, gameWorld.name)
     private val saveTime: SaveTime = SaveTime(plugin, gameWorld.spawn)
     private val endGame: EndGame = EndGame(plugin, config.lobbySpawn)
-    private val inGame: InGame by lazy { InGame(plugin, gameWorld.spawn.blockY - 10) { endGame.start() } }
+    private val inGame: InGame by lazy { InGame(plugin, gameWorld.spawn.blockY - 22) { endGame.start() } }
 
     fun init() {
         lobby.start()
@@ -81,7 +80,7 @@ class GameStateManager(
     class Config(dataFolder: File) {
 
         val lobbySpawn: Location = Location(Bukkit.getWorlds().first(), -46.5, 148.0, 1253.5, 145f, 0f)
-        val gameName = "${DARK_RED}${BOLD}TNTRun"
+        val gameName = "${DARK_RED}${BOLD}T${WHITE}${BOLD}N${DARK_RED}${BOLD}T${WHITE}${BOLD}Run"
         val minPlayers = 2
         val gameWorlds: Set<GameWorld> = setOf(
             GameWorld("LarsDerSprengMeister", Location(Bukkit.getWorld("GameWorld"), 0.0, 100.0, 0.0))
