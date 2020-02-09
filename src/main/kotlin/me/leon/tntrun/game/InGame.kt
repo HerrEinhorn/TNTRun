@@ -4,10 +4,11 @@
 
 package me.leon.tntrun.game
 
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import net.darkdevelopers.darkbedrock.darkness.spigot.events.PlayerDisconnectEvent
 import net.darkdevelopers.darkbedrock.darkness.spigot.functions.events.autoRespawn
+import net.darkdevelopers.darkbedrock.darkness.spigot.functions.events.cancelBlockBreak
+import net.darkdevelopers.darkbedrock.darkness.spigot.functions.events.cancelBlockPlace
 import net.darkdevelopers.darkbedrock.darkness.spigot.functions.events.listen
 import net.darkdevelopers.darkbedrock.darkness.spigot.functions.schedule
 import net.darkdevelopers.darkbedrock.darkness.spigot.functions.sendSubTitle
@@ -22,7 +23,6 @@ import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
-import org.bukkit.entity.TNTPrimed
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.player.PlayerRespawnEvent
@@ -36,26 +36,32 @@ class InGame(
     private val win: (Player) -> Unit
 ) : EventsTemplate(), StartStop {
 
+    private val scope = CoroutineScope(Dispatchers.Default)
     private val players: Collection<Player> get() = allPlayers
-    private var stopWatch = StopWatch().apply { start() }
+    private var stopWatch = StopWatch()
     private var isRunning = false
 
     override fun start() {
+        stopWatch.start()
         isRunning = true
-        GlobalScope.launch {
+        block(true)
+        @Suppress("EXPERIMENTAL_API_USAGE")
+        scope.newCoroutineContext(Dispatchers.Default)
+        scope.launch {
             val blocks = mutableSetOf<Block>()
             val tnts = mutableSetOf<Entity>()
             while (isRunning) {
                 val time = 250L
                 delay(time)
-                GlobalScope.launch {
-                    delay(time * 2)
+                scope.launch {
+                    delay(time * 175 / 100)
                     plugin.schedule {
                         tnts.forEach { it.remove() }
                         tnts.clear()
                         blocks.forEach {
                             it.setType(Material.AIR, false)
-                            tnts += it.world.spawn(it.location.add(0.5, -0.5, 0.5), TNTPrimed::class.java)
+                            @Suppress("DEPRECATION")
+                            tnts += it.world.spawnFallingBlock(it.location.add(0.5, -0.5, 0.5), it.type, it.data)
                         }
                         blocks.clear()
                     }
@@ -80,6 +86,9 @@ class InGame(
             it.entity.dead()
             checkWin()
         }.add()
+        listen<PlayerDisconnectEvent>(plugin) {
+            checkWin()
+        }
         listen<PlayerRespawnEvent>(plugin) {
             it.player.teleport(players.random())
         }.add()
@@ -101,6 +110,8 @@ class InGame(
         isRunning = false
         reset()
         stopWatch.reset()
+        block(false)
+        scope.cancel()
     }
 
     private fun Player.dead() {
@@ -112,6 +123,11 @@ class InGame(
     private fun Player.sendPlayTime() {
         sendSubTitle("${GRAY}after $DARK_GRAY${TimeUnit.MILLISECONDS.toSeconds(stopWatch.time)}${GRAY}s")
         sendTimings(20, 140, 40)
+    }
+
+    private fun block(value: Boolean) {
+        cancelBlockBreak = value
+        cancelBlockPlace = value
     }
 
 }

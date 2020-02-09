@@ -5,6 +5,7 @@
 package me.leon.tntrun.game
 
 import net.darkdevelopers.darkbedrock.darkness.spigot.countdowns.LobbyCountdown
+import net.darkdevelopers.darkbedrock.darkness.spigot.events.PlayerDisconnectEvent
 import net.darkdevelopers.darkbedrock.darkness.spigot.functions.events.cancelEntityExplode
 import net.darkdevelopers.darkbedrock.darkness.spigot.functions.events.listen
 import net.darkdevelopers.darkbedrock.darkness.spigot.functions.sendLobbyScoreBoard
@@ -35,8 +36,13 @@ class Lobby(
             val player = it.player
             player.gameMode = GameMode.SURVIVAL
             player.sendLobbyScoreBoard("$AQUA${BOLD}$gameWorldName", countdown.gameName)
-            player.inventory.setItem(9, Items.LEAVE.itemStack)
+            player.inventory.setItem(8, Items.LEAVE.itemStack)
         }.add()
+        listen<PlayerDisconnectEvent>(plugin) {
+            if (countdown.players.size - 1 > countdown.minPlayers) return@listen
+            countdown.stop()
+            countdown.idle()
+        }
         countdown.idle()
     }
 

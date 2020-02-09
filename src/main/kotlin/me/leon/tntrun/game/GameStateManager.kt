@@ -13,10 +13,13 @@ import net.darkdevelopers.darkbedrock.darkness.spigot.functions.loadBukkitWorld
 import net.darkdevelopers.darkbedrock.darkness.spigot.functions.schedule
 import net.darkdevelopers.darkbedrock.darkness.spigot.manager.game.EventsTemplate
 import org.bukkit.Bukkit
+import org.bukkit.ChatColor.BOLD
+import org.bukkit.ChatColor.DARK_RED
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.plugin.Plugin
 import java.io.File
+import kotlin.random.Random
 
 class GameStateManager(
     private val plugin: Plugin
@@ -35,11 +38,16 @@ class GameStateManager(
             val countdown = event.lobbyCountdown
             if (countdown.seconds == 20) plugin.schedule {
                 gameWorld.spawn.world = (gameWorld.spawn.world?.name ?: "GameWorld").loadBukkitWorld().apply {
-                    plugin.schedule {
-                        for (x in -20..20)
-                            for (z in -20..20)
-                                getBlockAt(x, 100, z).setType(Material.TNT, false)
-                    }
+                    for (y10 in -15..0 step 5)
+                        for (x in -10..10)
+                            for (z in -10..10)
+                                plugin.schedule {
+                                    getBlockAt(x, 100 + y10, z).apply {
+                                        setType(Material.WOOL, false)
+                                        @Suppress("DEPRECATION")
+                                        data = Random.nextBits(4).toByte()
+                                    }
+                                }
                 }
             }
             if (countdown.seconds > 0) return@listen
@@ -73,7 +81,7 @@ class GameStateManager(
     class Config(dataFolder: File) {
 
         val lobbySpawn: Location = Location(Bukkit.getWorlds().first(), -46.5, 148.0, 1253.5, 145f, 0f)
-        val gameName = "TNTRun"
+        val gameName = "${DARK_RED}${BOLD}TNTRun"
         val minPlayers = 2
         val gameWorlds: Set<GameWorld> = setOf(
             GameWorld("LarsDerSprengMeister", Location(Bukkit.getWorld("GameWorld"), 0.0, 100.0, 0.0))
