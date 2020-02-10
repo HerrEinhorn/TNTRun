@@ -29,7 +29,13 @@ class GameStateManager(
     val lobby: Lobby = Lobby(plugin, config.lobbySpawn, config.gameName, config.minPlayers, gameWorld.name)
     private val saveTime: SaveTime = SaveTime(plugin, gameWorld.spawn)
     private val endGame: EndGame = EndGame(plugin, config.lobbySpawn, this)
-    private val inGame: InGame by lazy { InGame(plugin, gameWorld.spawn.blockY - 22) { endGame.start() } }
+    private val inGame: InGame by lazy {
+        InGame(
+            plugin,
+            gameWorld.spawn.blockY - 22,
+            config.gameName
+        ) { endGame.start() }
+    }
 
     fun init() {
         lobby.start()

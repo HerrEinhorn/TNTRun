@@ -37,10 +37,14 @@ fun registerStartCommand(
         else (1..10).map { it.toString() }
     }) { sender, args, commandConfig ->
 
-    val seconds = if (args.isEmpty()) 10 else args[0].toIntOrNull() ?: run {
+    val newSeconds = if (args.isEmpty()) 10 else args[0].toIntOrNull() ?: run {
         commandConfig.secondsMustBeAnInteger.sendTo(sender)
         return@register
     }
-    countdown().seconds = seconds
+    countdown().apply {
+        println(this.players.joinToString())
+        start()
+        seconds = newSeconds
+    }
     commandConfig.successfullyStarted.sendTo(sender)
 }

@@ -6,11 +6,8 @@ package me.leon.tntrun.game
 
 import kotlinx.coroutines.*
 import net.darkdevelopers.darkbedrock.darkness.spigot.events.PlayerDisconnectEvent
+import net.darkdevelopers.darkbedrock.darkness.spigot.functions.*
 import net.darkdevelopers.darkbedrock.darkness.spigot.functions.events.*
-import net.darkdevelopers.darkbedrock.darkness.spigot.functions.schedule
-import net.darkdevelopers.darkbedrock.darkness.spigot.functions.sendSubTitle
-import net.darkdevelopers.darkbedrock.darkness.spigot.functions.sendTimings
-import net.darkdevelopers.darkbedrock.darkness.spigot.functions.sendTitle
 import net.darkdevelopers.darkbedrock.darkness.spigot.manager.game.EventsTemplate
 import net.darkdevelopers.darkbedrock.darkness.spigot.messages.Colors.IMPORTANT
 import net.darkdevelopers.darkbedrock.darkness.spigot.messages.Colors.TEXT
@@ -33,6 +30,7 @@ import net.darkdevelopers.darkbedrock.darkness.spigot.utils.Utils.players as all
 class InGame(
     private val plugin: Plugin,
     private val minY: Int,
+    private val displayName: String,
     private val win: (Player) -> Unit
 ) : EventsTemplate(), StartStop {
 
@@ -45,8 +43,26 @@ class InGame(
         stopWatch.start()
         isRunning = true
         block(true)
+
         @Suppress("EXPERIMENTAL_API_USAGE")
         scope = CoroutineScope(Dispatchers.Default)
+        scope.launch {
+            while (isRunning) {
+                val scoreboardScores = mutableSetOf(
+                    "",
+                    "${TEXT}Player:"
+                )
+                players.map { it.displayName }.forEach {
+                    scoreboardScores += "$IMPORTANT$it"
+                }
+                scoreboardScores += " "
+                players.forEach {
+                    it.sendScoreBoard(displayName, scoreboardScores)
+                }
+                delay(100)
+            }
+        }
+
         scope.launch {
             val blocks = mutableSetOf<Block>()
             val tnts = mutableSetOf<Entity>()
@@ -95,7 +111,7 @@ class InGame(
         listen<EntityDamageEvent>(plugin) {
             if (it.cause != EntityDamageEvent.DamageCause.FALL) return@listen
             it.cancel()
-        }
+        }.add()
     }
 
     private fun checkWin() {

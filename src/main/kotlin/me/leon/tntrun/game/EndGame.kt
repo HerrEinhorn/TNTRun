@@ -36,11 +36,11 @@ class EndGame(
     override fun stop() {
         block(false)
         LobbyEventsTemplate.reset()
-        if (countdown.players.size < 2) {
-            gameStateManager.shutdown()
-            gameStateManager.init()
-        } else
-            countdown.stop()
+//        if (countdown.players.size < 2) {
+//            gameStateManager.shutdown()
+//            gameStateManager.init()
+//        } else
+        countdown.stop()
     }
 
     private fun block(value: Boolean) {

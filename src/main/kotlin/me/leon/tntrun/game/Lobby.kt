@@ -43,7 +43,7 @@ class Lobby(
             if (countdown.players.size - 1 > countdown.minPlayers) return@listen
             countdown.stop()
             countdown.idle()
-        }
+        }.add()
         countdown.idle()
     }
 
