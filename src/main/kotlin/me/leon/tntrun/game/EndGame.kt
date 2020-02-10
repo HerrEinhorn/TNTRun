@@ -15,7 +15,8 @@ import org.bukkit.plugin.Plugin
 
 class EndGame(
     private val plugin: Plugin,
-    private val spawn: Location
+    private val spawn: Location,
+    private val gameStateManager: GameStateManager
 ) : StartStop {
 
     private val countdown: EndGameCountdown = EndGameCountdown(seconds = 3)
@@ -35,8 +36,11 @@ class EndGame(
     override fun stop() {
         block(false)
         LobbyEventsTemplate.reset()
-        if (countdown.players.size < 2) return
-        countdown.stop()
+        if (countdown.players.size < 2) {
+            gameStateManager.shutdown()
+            gameStateManager.init()
+        } else
+            countdown.stop()
     }
 
     private fun block(value: Boolean) {

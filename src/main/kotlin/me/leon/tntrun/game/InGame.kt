@@ -12,6 +12,8 @@ import net.darkdevelopers.darkbedrock.darkness.spigot.functions.sendSubTitle
 import net.darkdevelopers.darkbedrock.darkness.spigot.functions.sendTimings
 import net.darkdevelopers.darkbedrock.darkness.spigot.functions.sendTitle
 import net.darkdevelopers.darkbedrock.darkness.spigot.manager.game.EventsTemplate
+import net.darkdevelopers.darkbedrock.darkness.spigot.messages.Colors.IMPORTANT
+import net.darkdevelopers.darkbedrock.darkness.spigot.messages.Colors.TEXT
 import org.apache.commons.lang.time.StopWatch
 import org.bukkit.ChatColor.*
 import org.bukkit.GameMode
@@ -80,6 +82,7 @@ class InGame(
             if (player.location.y >= minY) return@listen
             player.damage(player.maxHealth)
         }.add()
+        setDeathMessage { "${it.entity.displayName} ${TEXT}died after $IMPORTANT${stopWatch.seconds()}${TEXT}s" }
         listen<PlayerDeathEvent>(plugin) {
             it.entity.dead()
             checkWin()
@@ -122,7 +125,7 @@ class InGame(
     }
 
     private fun Player.sendPlayTime() {
-        sendSubTitle("${GRAY}after $DARK_GRAY${TimeUnit.MILLISECONDS.toSeconds(stopWatch.time)}${GRAY}s")
+        sendSubTitle("${GRAY}after $DARK_GRAY${stopWatch.seconds()}${GRAY}s")
         sendTimings(20, 140, 40)
     }
 
@@ -130,5 +133,7 @@ class InGame(
         cancelBlockBreak = value
         cancelBlockPlace = value
     }
+
+    private fun StopWatch.seconds() = TimeUnit.MILLISECONDS.toSeconds(time)
 
 }
